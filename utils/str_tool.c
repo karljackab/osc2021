@@ -8,6 +8,14 @@ int strcmp(char *s1, char *s2){
     return *s1 - *s2;
 }
 
+void strcpy(char *source_str, char *target_str){
+    while(*target_str){
+        *source_str = *target_str;
+        source_str += 1;
+        target_str += 1;
+    }
+}
+
 int32_t strlen(char *s){
     int32_t s_size = 0;
     while(*(s+s_size) != 0)

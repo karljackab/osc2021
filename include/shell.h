@@ -22,6 +22,10 @@ void shell_reboot();
 void shell_boot_uart();
 
 void shell_ls();
+void shell_cat();
+void shell_run();
 void shell_memory();
+void shell_getel();
+void shell_setTimeout();
 
 #endif
