@@ -16,6 +16,9 @@ void print_state(){
     uart_puts("\r\nesr_el1 = ");
     uart_puts(itoa(esr, 16));
     uart_puts("\r\n");
+    
+    asm volatile("mov x3, 1 \n");   // enable time interrupt
+    asm volatile("msr cntp_ctl_el0, x3 \n");
 }
 
 void lowerSync64_handler(){
@@ -38,6 +41,14 @@ void lowerIRQ64_handler(){
     uart_puts(".");
     uart_puts(itoa(tmp%10, 10));
     uart_puts("\r\n------------\r\n");
+}
+
+extern char nextTimeoutMessage[1000];
+void curIRQ_handler(){
+    uart_puts(nextTimeoutMessage);
+    uart_puts("\r\n");
+    asm volatile("mov x0, 0 \n");
+    asm volatile("msr cntp_ctl_el0, x0 \n");
 }
 
 void non_implement_handler(){

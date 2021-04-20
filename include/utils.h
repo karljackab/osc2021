@@ -6,7 +6,7 @@
 void delay(unsigned long);
 void put32(unsigned long, unsigned int);
 unsigned int get32(unsigned long);
-void run_program();
+void run_program(uint64_t);
 int get_el();
 
 #endif

@@ -30,10 +30,10 @@ master:
     bl      memzero
 
     // init timer interrupt
-    mov     x0, 1
-    msr     cntp_ctl_el0, x0    // enable
-    mrs     x0, cntfrq_el0
-    msr     cntp_tval_el0, x0   // set expired time
+    mov     x0, 0
+    msr     cntp_ctl_el0, x0    // disable
+    //mrs     x0, cntfrq_el0
+    //msr     cntp_tval_el0, x0   // set expired time
     mov     x0, 2
     ldr     x1, =0x40000040
     str     w0, [x1]            // unmask timer interrupt
@@ -87,8 +87,8 @@ master:
 from_el2_to_el1:
     mov     x0, (1 << 31)   // EL1 uses aarch64
     msr     hcr_el2, x0
-    mov     x0, 0x3c5       // EL1h (SPSel = 1) with interrupt disabled
-    //mov     x0, 0x345       // EL1h (SPSel = 1) with interrupt enable
+    //mov     x0, 0x3c5       // EL1h (SPSel = 1) with interrupt disabled
+    mov     x0, 0x345       // EL1h (SPSel = 1) with interrupt enable
     msr     spsr_el2, x0
     msr     elr_el2, lr
     eret                    // return to EL1
@@ -141,6 +141,11 @@ lowerSync64:
     eret
 
 curIRQ:
+    save_regs
+    bl      curIRQ_handler
+    load_regs
+    eret
+
 lowerIRQ64:
     save_regs
     bl      lowerIRQ64_handler

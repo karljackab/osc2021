@@ -29,7 +29,8 @@ struct CMD command[] = {
     {.name="pdtinfo", .help="print Device Tree Info", .func=print_dt_info},
     {.name="parsedt", .help="parse Device Tree", .func=parse_dt},
     {.name="memory", .help="do some memory operation", .func=shell_memory},
-    {.name="getEL", .help="Get current Exception Level", .func=shell_getel}
+    {.name="getEL", .help="Get current Exception Level", .func=shell_getel},
+    {.name="setTimeout", .help="set timeout to print some message", .func=shell_setTimeout}
 };
 
 void shell_getel(){
@@ -195,6 +196,27 @@ void shell_reboot(){
     put32(PM_WDOG, PM_PASSWORD | 10);
 }
 
+
+char nextTimeoutMessage[1000];
+void shell_setTimeout(){
+    char *targetFileName=input_argv, *second_ptr=input_argv;
+    while(*second_ptr!=' ')
+        second_ptr += 1;
+    *second_ptr = 0;
+    second_ptr += 1;
+    
+    strcpy(nextTimeoutMessage, targetFileName);
+    int64_t second = atoi(second_ptr, 10);
+
+    asm volatile("mrs x1, cntfrq_el0 \n");
+    asm volatile("mul x2, x1, %[input0] \n"::[input0]"r"(second));
+    asm volatile("msr cntp_tval_el0, x2 \n");
+
+    asm volatile("mov x0, 1 \n");
+    asm volatile("msr cntp_ctl_el0, x0 \n");
+
+}
+
 void relocate_program(unsigned char *addr_start, unsigned char *addr_end){
     unsigned char *target_addr = (unsigned char*)0x2000000;
     while(addr_start != addr_end){
@@ -228,8 +250,7 @@ void shell_run(){
         cur_addr = (uint64_t)((cur_addr + file_size + 3) & (~3));
 
         if(!strcmp(file_name, targetFileName)){
-            relocate_program((unsigned char*)file_content, (unsigned char*)cur_addr);
-            run_program();
+            run_program((uint64_t)file_content);
             break;
         }
     }

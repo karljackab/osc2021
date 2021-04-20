@@ -23,4 +23,5 @@ int strcmp(char*, char*);
 char* itoa(int64_t, int);
 int64_t atoi(char*, int);
 int32_t strlen(char*);
+void strcpy(char*, char*);
 #endif
